@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>栈操作序列生成器</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input[type="number"] {
+            padding: 8px;
+            width: 120px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .sequence {
+            margin: 15px 0;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        .step {
+            margin: 5px 0;
+            padding: 5px;
+            background-color: #fff;
+            border-left: 3px solid #4CAF50;
+        }
+
+        .stack {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>栈操作序列生成器</h1>
+        
+        <div class="input-group">
+            <input type="number" id="inputN" min="1" placeholder="输入车厢数量">
+            <button onclick="generateSequences()">生成序列</button>
+        </div>
+
+        <div id="output" class="output"></div>
+    </div>
+
+    <script>
+        // JavaScript实现的栈和算法逻辑
+        class SqStack {
+            constructor() {
+                this.data = [];
+            }
+            
+            push(e) {
+                this.data.push(e);
+            }
+            
+            pop() {
+                return this.data.pop();
+            }
+            
+            isEmpty() {
+                return this.data.length === 0;
+            }
+            
+            toString() {
+                return `[${this.data.join(', ')}]`;
+            }
+        }
+
+        let results = [];
+
+        function backtrack(n, current, stack, output, ops) {
+            if (output.length === n) {
+                results.push({
+                    output: [...output],
+                    ops: [...ops]
+                });
+                return;
+            }
+
+            // 尝试出栈分支
+            if (!stack.isEmpty()) {
+                const e = stack.pop();
+                output.push(e);
+                ops.push('O');
+                backtrack(n, current, stack, output, ops);
+                ops.pop();
+                output.pop();
+                stack.push(e);
+            }
+
+            // 尝试入栈分支
+            if (current <= n) {
+                stack.push(current);
+                ops.push('I');
+                backtrack(n, current + 1, stack, output, ops);
+                ops.pop();
+                stack.pop();
+            }
+        }
+
+        function generateSequences() {
+            const n = parseInt(document.getElementById('inputN').value);
+            if (isNaN(n) || n < 1) {
+                alert("请输入有效的正整数！");
+                return;
+            }
+
+            results = [];
+            const stack = new SqStack();
+            backtrack(n, 1, stack, [], []);
+
+            const outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
+
+            if (results.length === 0) {
+                outputDiv.textContent = "没有找到可能的序列。";
+                return;
+            }
+
+            outputDiv.innerHTML = `<strong>共有 ${results.length} 种可能的输出序列：</strong>`;
+
+            results.forEach((result, index) => {
+                const sequenceDiv = document.createElement('div');
+                sequenceDiv.className = 'sequence';
+                sequenceDiv.innerHTML = `
+                    <h3>序列 ${index + 1}: [${result.output.join(', ')}]</h3>
+                    <div>操作步骤 (${result.ops.join(' ')})</div>
+                `;
+
+                // 添加详细步骤
+                const stepsDiv = document.createElement('div');
+                const simStack = new SqStack();
+                let inputNum = 1;
+                let outputIdx = 0;
+
+                result.ops.forEach((op, step) => {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.className = 'step';
+                    
+                    if (op === 'I') {
+                        simStack.push(inputNum);
+                        stepDiv.innerHTML = `步骤 ${step + 1}: 进栈 ${inputNum} 
+                            <span class="stack">当前栈: ${simStack}</span>`;
+                        inputNum++;
+                    } else {
+                        const e = simStack.pop();
+                        stepDiv.innerHTML = `步骤 ${step + 1}: 出栈 ${e} → 输出: 
+                            [${result.output.slice(0, ++outputIdx).join(', ')}]
+                            <span class="stack">当前栈: ${simStack}</span>`;
+                    }
+                    stepsDiv.appendChild(stepDiv);
+                });
+
+                sequenceDiv.appendChild(stepsDiv);
+                outputDiv.appendChild(sequenceDiv);
+            });
+        }
+    </script>
+</body>
+</html>
