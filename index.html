@@ -1,303 +1,159 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>表达式求值可视化</title>
-    <style>
+    <title>简易计算器</title>
+    <style type="text/css">
+        * {
+            margin: auto;
+            padding: 0px;
+            text-align: center;
+            font-family: "微软雅黑";
+        }
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
             background-color: #f5f5f5;
         }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        input[type="text"] {
-            width: 300px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-
-        button {
-            padding: 8px 16px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #45a049;
-        }
-
-        .animation-controls {
-            margin: 10px 0;
-            display: flex;
-            gap: 10px;
-        }
-
-        .stack-container {
-            display: flex;
-            gap: 30px;
+        .banner h2 {
+            color: #333;
             margin: 20px 0;
         }
-
-        .stack {
-            flex: 1;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+        .content {
+            border-radius: 15px;
+            width: 400px;
+            height: 600px;
+            background-color: #2c3e50;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .clear {
+            border-radius: 10px;
+            width: 20%;
+            height: 72px;
+            background-color: #e74c3c;
+            color: white;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            width: 75%;
+            height: 80px;
+            text-align: right;
+            border-radius: 10px;
+            background-color: #ecf0f1;
             padding: 10px;
-            min-height: 150px;
+            border: none;
+            margin-bottom: 20px;
         }
-
-        .stack-title {
-            color: #666;
-            margin-bottom: 10px;
+        .symbol {
+            margin-top: 15px;
+            font-size: 24px;
+            border-radius: 10px;
+            width: 20%;
+            height: 72px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
-
-        .stack-item {
-            background: #e3f2fd;
-            padding: 8px;
-            margin: 4px 0;
-            border-radius: 4px;
-            animation: itemAppear 0.3s ease;
+        .number {
+            margin-top: 15px;
+            font-size: 24px;
+            border-radius: 10px;
+            width: 20%;
+            height: 72px;
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
-
-        @keyframes itemAppear {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .calculate {
+            margin-top: 15px;
+            font-size: 24px;
+            border-radius: 10px;
+            width: 20%;
+            height: 72px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
-
-        .current-step {
-            background: #fff3e0;
+        .power {
+            margin-top: 15px;
+            font-size: 24px;
+            border-radius: 10px;
+            width: 20%;
+            height: 72px;
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
-
-        .status-info {
-            padding: 10px;
-            background: #f8f8f8;
-            border-radius: 4px;
-            margin: 10px 0;
+        .content input:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
         }
-
-        .error {
-            color: #d32f2f;
-            background: #ffebee;
-            padding: 10px;
-            border-radius: 4px;
+        .content input:active {
+            transform: scale(0.98);
+        }
+        .footer p {
+            margin-top: 20px;
+            color: #7f8c8d;
         }
     </style>
+    <script type="text/javascript">
+        function clearValue() {
+            document.getElementById("result").value = "";
+        }
+        
+        function get(value) {
+            document.getElementById("result").value += value;
+        }
+        
+        function calculate() {
+            var result = document.getElementById("result").value;
+            // 替换^为JavaScript的幂运算符号
+            result = result.replace(/\^/g, "**");
+            try {
+                document.getElementById("result").value = eval(result);
+            } catch (e) {
+                document.getElementById("result").value = "错误";
+            }
+        };
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>表达式求值可视化</h1>
-        
-        <div class="input-group">
-            <input type="text" id="expression" placeholder="输入表达式（以#结尾，例如：3*(4+2)/2#）">
-            <button onclick="startEvaluation()">开始计算</button>
-        </div>
-
-        <div class="animation-controls" id="controls" style="display: none;">
-            <button onclick="prevStep()">上一步</button>
-            <button onclick="nextStep()">下一步</button>
-            <button onclick="reset()">重置</button>
-        </div>
-
-        <div id="error" class="error"></div>
-
-        <div class="stack-container">
-            <div class="stack">
-                <div class="stack-title">操作数栈</div>
-                <div id="numStack"></div>
-            </div>
-            <div class="stack">
-                <div class="stack-title">运算符栈</div>
-                <div id="opStack"></div>
-            </div>
-        </div>
-
-        <div class="status-info">
-            当前操作：<span id="currentAction"></span>
-        </div>
+    <div class="banner">
+        <h2>简易计算器</h2>
     </div>
-
-    <script>
-        class Evaluator {
-            constructor() {
-                this.steps = [];
-                this.currentStep = 0;
-                this.numStack = [];
-                this.opStack = ['#'];
-                this.expression = '';
-                this.buildingNumber = 0;
-                this.num = 0;
-            }
-
-            parseExpression(expr) {
-                this.steps = [];
-                this.expression = expr + (expr.endsWith('#') ? '' : '#');
-                this.processExpression();
-                return this.steps;
-            }
-
-            processExpression() {
-                for (let i = 0; i < this.expression.length; i++) {
-                    const c = this.expression[i];
-                    this.recordStep(`处理字符：${c}`, c);
-
-                    if (/\d/.test(c)) {
-                        this.num = this.num * 10 + parseInt(c);
-                        this.buildingNumber = 1;
-                    } else {
-                        if (this.buildingNumber) {
-                            this.numStack.push(this.num);
-                            this.recordStep('数字入栈', 'number');
-                            this.num = 0;
-                            this.buildingNumber = 0;
-                        }
-
-                        this.processOperator(c, i);
-                    }
-                }
-            }
-
-            processOperator(c, index) {
-                while (true) {
-                    const top = this.opStack[this.opStack.length - 1];
-                    
-                    if (c === '#' && top === '#') break;
-
-                    if (top === '(' && c === ')') {
-                        this.opStack.pop();
-                        this.recordStep('弹出左括号', 'paren');
-                        break;
-                    } else if (c === '(' || this.getPriority(c) > this.getPriority(top)) {
-                        this.opStack.push(c);
-                        this.recordStep('运算符入栈', 'op');
-                        break;
-                    } else {
-                        const op = this.opStack.pop();
-                        const a = this.numStack.pop();
-                        const b = this.numStack.pop();
-                        
-                        if (op === '/' && a === 0) {
-                            throw new Error('除零错误');
-                        }
-
-                        const res = this.calculate(a, b, op);
-                        this.numStack.push(res);
-                        this.recordStep(`执行运算：${b}${op}${a}=${res}`, 'calc');
-                    }
-                }
-            }
-
-            getPriority(op) {
-                const priority = {
-                    '+': 1, '-': 1,
-                    '*': 2, '/': 2,
-                    '^': 3,
-                    '(': 0, '#': -1
-                };
-                return priority[op] ?? -1;
-            }
-
-            calculate(a, b, op) {
-                switch(op) {
-                    case '+': return b + a;
-                    case '-': return b - a;
-                    case '*': return b * a;
-                    case '/': return Math.floor(b / a);
-                    case '^': return Math.pow(b, a);
-                    default: return 0;
-                }
-            }
-
-            recordStep(action, type) {
-                this.steps.push({
-                    action,
-                    numStack: [...this.numStack],
-                    opStack: [...this.opStack],
-                    type
-                });
-            }
-        }
-
-        let evaluator = new Evaluator();
-        let currentStep = 0;
-
-        function startEvaluation() {
-            const expr = document.getElementById('expression').value;
-            if (!expr) {
-                showError('请输入有效表达式');
-                return;
-            }
-
-            try {
-                const steps = evaluator.parseExpression(expr);
-                document.getElementById('controls').style.display = 'flex';
-                currentStep = 0;
-                renderStep(steps[0]);
-            } catch (e) {
-                showError(e.message);
-            }
-        }
-
-        function renderStep(step) {
-            // 更新栈显示
-            renderStack('numStack', step.numStack);
-            renderStack('opStack', step.opStack);
-            
-            // 更新当前操作
-            document.getElementById('currentAction').textContent = step.action;
-        }
-
-        function renderStack(elementId, items) {
-            const container = document.getElementById(elementId);
-            container.innerHTML = items.map(item => 
-                `<div class="stack-item">${item}</div>`
-            ).join('');
-        }
-
-        function showError(msg) {
-            document.getElementById('error').textContent = msg;
-            setTimeout(() => {
-                document.getElementById('error').textContent = '';
-            }, 3000);
-        }
-
-        function nextStep() {
-            if (currentStep < evaluator.steps.length - 1) {
-                currentStep++;
-                renderStep(evaluator.steps[currentStep]);
-            }
-        }
-
-        function prevStep() {
-            if (currentStep > 0) {
-                currentStep--;
-                renderStep(evaluator.steps[currentStep]);
-            }
-        }
-
-        function reset() {
-            currentStep = 0;
-            renderStep(evaluator.steps[0]);
-        }
-    </script>
+    <div class="content">
+        <input type="button" value="清除" class="clear" onclick="clearValue()"/>
+        <input type="text" id="result" readonly="readonly" placeholder="0"/>
+        <br />
+        <input type="button" value="7" class="number" onclick="get(this.value)"/>
+        <input type="button" value="8" class="number" onclick="get(this.value)"/>
+        <input type="button" value="9" class="number" onclick="get(this.value)"/>
+        <input type="button" value="+" class="symbol" onclick="get(this.value)"/>
+        <br />
+        <input type="button" value="4" class="number" onclick="get(this.value)"/>
+        <input type="button" value="5" class="number" onclick="get(this.value)"/>
+        <input type="button" value="6" class="number" onclick="get(this.value)"/>
+        <input type="button" value="-" class="symbol" onclick="get(this.value)"/>
+        <br />
+        <input type="button" value="1" class="number" onclick="get(this.value)"/>
+        <input type="button" value="2" class="number" onclick="get(this.value)"/>
+        <input type="button" value="3" class="number" onclick="get(this.value)"/>
+        <input type="button" value="*" class="symbol" onclick="get(this.value)"/>
+        <br />
+        <input type="button" value="0" class="number" onclick="get(this.value)"/>
+        <input type="button" value="^" class="power" onclick="get(this.value)"/>
+        <input type="button" value="/" class="symbol" onclick="get(this.value)"/>
+        <input type="button" value="=" class="calculate" onclick="calculate()"/>
+    </div>
+    <div class="footer">
+        <p>CopyRight &copy; QianQian</p>
+    </div>
 </body>
 </html>
